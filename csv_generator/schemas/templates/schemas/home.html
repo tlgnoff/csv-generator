@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="row justify-content-between">
+        <div class="col-3">
+            <h2>Data schemas</h2>
+        </div>
+        <div class="col-3">
+            <a href="{% url 'schema-create' %}" class="btn btn-success">New schema</a>
+        </div>
+    </div>
+    <table class="table table-bordered mt-4">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Title</th>
+                <th scope="col">Modified</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+                {% for schema in object_list %}
+                <tr>
+                    <th scope="row">{{ forloop.counter }}</th>
+                    <td><a href="{% url 'schema-datasets' schema.id %}" class="btn btn-link">{{ schema.name }}</a></td>
+                    <td>{{ schema.modified }}</td>
+                    <td>
+                        <a href="{% url 'schema-edit' schema.id %}" class="btn btn-link">Edit scheme</a>
+                        <a href="{% url 'schema-delete' schema.id %}" class="btn btn-link" style="color: #D9534F">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+        </tbody>
+    </table>
+{% endblock content %}

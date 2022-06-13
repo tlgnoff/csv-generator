@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="row justify-content-between">
+        <div class="col-3">
+            <h2>Data sets</h2>
+        </div>
+        <div class="col">
+            <form method="post" action="{% url 'dataset-generate' %}" class="row justify-content-end">
+                {% csrf_token %}
+                <label class="visually-hidden" for="schemaID">Schema ID</label>
+                <input name="schema_id" type="hidden" value="{{ schema }}" id="schemaID">
+                <div class="col">
+                    <div class="row justify-content-end">
+                        <label class="col-2 col-form-label" for="inputRows">Rows:</label>
+                        <div class="col-2">
+                            <input name="row_number" type="number" class="form-control" id="inputRows">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-5">
+                    <button type="submit" class="btn btn-success">Generate data</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <table class="table table-bordered mt-4" style="width: 85%">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Created</th>
+                <th scope="col">Status</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+                {% for dataset in object_list %}
+                <tr>
+                    <th scope="row">{{ forloop.counter }}</th>
+                    <td>{{ dataset.created_date }}</td>
+                    {% if dataset.status == 0 %}
+                    <td>
+                        <button type="button" class="btn btn-success" disabled>Ready</button>
+                    </td>
+                    {% elif dataset.status == 1 %}
+                    <td>
+                        <button type="button" class="btn btn-secondary" disabled>Processing</button>
+                    </td>
+                    {% endif %}
+                    <td>
+                        {% if dataset.file %}
+                        <a href="{{ dataset.file.url }}" class="btn btn-link">Download</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+        </tbody>
+    </table>
+{% endblock content %}

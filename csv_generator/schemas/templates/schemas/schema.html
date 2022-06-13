@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <form method="post" class="row">
+        {% csrf_token %}
+        <div class="row justify-content-between">
+            <div class="col-3">
+                <h2>New schema</h2>
+            </div>
+            <div class="col-3">
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+        </div>
+        <div id="column-container" class="container">
+            <div class="col-4">
+                {{ form.name|as_crispy_field}}
+            </div>
+            <div class="col-4">
+                {{ form.column_separator|as_crispy_field}}
+            </div>
+            <div class="col-4">
+                {{ form.string_character|as_crispy_field}}
+            </div>
+        </div>
+        <h2 class="mt-4">Schema columns</h2>
+        <div id="row-container" class="container">
+            {{ formset.management_form|crispy }}
+            {% for column in formset %}
+            <div class="row column-form align-items-center g-1">
+                <div type="hidden">
+                    {{ column.id|as_crispy_field }}
+                </div>
+                <div class="col-md-3">
+                    {{ column.name|as_crispy_field }}
+                </div>
+                <div class="col-md-3">
+                    {{ column.data_type|as_crispy_field }}
+                </div>
+                <div class="col-md-1">
+                    {{ column.from_range|as_crispy_field }}
+                </div>
+                <div class="col-md-1">
+                    {{ column.to_range|as_crispy_field }}
+                </div>
+                <div class="col-md-2">
+                    {{ column.order|as_crispy_field }}
+                </div>
+                <div class="col-md-1">
+                    <button id="remove-form" class="btn btn-link" style="color: #D9534F" type="button">Delete</button>
+                </div>
+            </div>
+            {% endfor %}
+            <button id="add-form" class="btn btn-primary mt-4" type="button">Add column</button>
+        </div>
+    </form>
+    <script>
+        let container = document.querySelector("#row-container")
+        let addButton = document.querySelector("#add-form")
+        let removeButton = document.querySelectorAll("#remove-form")
+        let totalForms = document.querySelector("#id_form-TOTAL_FORMS")
+
+        addButton.addEventListener('click', addForm)
+        removeButton.forEach(el => el.addEventListener('click', removeForm))
+
+        var typechangeHandler = function() {
+            document.querySelectorAll(".column-form").forEach(el => {
+                if(el.querySelector('select[id$="data_type"]').value !== 'Integer' && el.querySelector('select[id$="data_type"]').value !== 'Text'){
+                    el.querySelector('[id$="from_range"').style.display = 'none';
+                    el.querySelector('[id$="to_range"').style.display = 'none';
+                }
+                else{
+                    el.querySelector('[id$="from_range"').style.display = 'initial';
+                    el.querySelector('[id$="to_range"').style.display = 'initial';
+                }
+            })
+        }
+
+        typechangeHandler();
+
+        document.querySelectorAll(".column-form").forEach(el => {
+            el.querySelector('select[id$="data_type"]').addEventListener("change", typechangeHandler, false)
+        })
+
+
+
+        function addForm(e){
+            e.preventDefault()
+
+            let columnForm = document.querySelectorAll(".column-form")
+            let formNum = columnForm.length
+            let newForm = columnForm[0].cloneNode(true)
+            let formRegex = RegExp(`form-(\\d){1}-`,'g')
+
+            newForm.innerHTML = newForm.innerHTML.replace(formRegex, `form-${formNum}-`)
+            container.insertBefore(newForm, addButton)
+
+            newForm.querySelector('select[id$="data_type"]').addEventListener("change", typechangeHandler, false)
+            
+            totalForms.setAttribute('value', `${formNum+1}`)
+        }
+
+        function removeForm(e){
+            e.preventDefault()
+
+            let formRegex = RegExp(`form-(\\d){1}-`,'g')
+
+            var total = parseInt(document.querySelector('#id_form-TOTAL_FORMS').value);
+            if(total > 1){
+                this.closest('.column-form').remove();
+                var forms = document.querySelectorAll(".column-form");
+                document.querySelector('#id_form-TOTAL_FORMS').setAttribute('value', `${forms.length}`);
+                var i = 0
+                document.querySelectorAll(".column-form").forEach(el => {
+                    el.innerHTML = el.innerHTML.replace(formRegex, `form-${i}-`);
+                    i++
+                })
+            }
+            var removeButton = document.querySelectorAll("#remove-form")
+            removeButton.forEach(el => el.addEventListener('click', removeForm))
+            document.querySelectorAll(".column-form").forEach(el => {
+                el.querySelector('select[id$="data_type"]').addEventListener("change", typechangeHandler, false)
+            })
+        }
+    </script>
+{% endblock content %}

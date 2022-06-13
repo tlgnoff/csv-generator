@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+<center class="row h-100">
+    <form method="post" class="col-12 my-auto">{% csrf_token %}
+        <p>Are you sure you want to delete "{{ object }}"?</p>
+        {{ form }}
+        <input type="submit" class="btn btn-danger" value="Delete">
+        <a href="{% url 'home' %}" class="btn btn-link">Cancel</button>
+    </form>
+</center>
+{% endblock content %}
