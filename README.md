@@ -1,1 +1,1 @@
-Django CSV files generator
+# Django fake CSV files generator
