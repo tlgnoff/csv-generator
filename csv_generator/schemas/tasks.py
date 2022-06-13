@@ -4,6 +4,8 @@ from celery import shared_task
 from faker import Faker
 from pathlib import Path
 from django.conf import settings
+from django.core.files.base import ContentFile
+from io import StringIO
 
 from .models import DataSet, Schema
 
@@ -84,17 +86,17 @@ def generate_fake_data(num_rows, schema_id, dataset_id):
     schema = Schema.objects.get(id=schema_id)
     dataset = DataSet.objects.get(id=dataset_id)
     columns = schema.columns.all().order_by('order')
-    path = Path(settings.MEDIA_ROOT / f'{schema.user.id}/{schema.name}')
+    path = Path(f'{schema.user.id}/{schema.name}')
     path.mkdir(parents=True, exist_ok=True)
     filename = path / f'{schema.name}_{dataset.created_date}_{dataset.id}.csv'
-    with open(filename, 'w') as csvfile:
-        writer = csv.writer(
-            csvfile,    
-            delimiter=schema.column_separator,
-            quotechar=schema.string_character)
-        writer.writerow([column.name for column in columns])
-        for row in range(num_rows):
-            writer.writerow([generate_by_type(column) for column in columns])
-        dataset.file.name = f'{schema.user.id}/{schema.name}/{schema.name}_{dataset.created_date}_{dataset.id}.csv'
-        dataset.status = DataSet.Status.READY
-        dataset.save()
+    csvfile = StringIO()
+    writer = csv.writer(
+        csvfile,    
+        delimiter=schema.column_separator,
+        quotechar=schema.string_character)
+    writer.writerow([column.name for column in columns])
+    for row in range(num_rows):
+        writer.writerow([generate_by_type(column) for column in columns])
+    dataset.file.save(filename.name, ContentFile(csvfile.getvalue().encode('utf-8')))
+    dataset.status = DataSet.Status.READY
+    dataset.save()

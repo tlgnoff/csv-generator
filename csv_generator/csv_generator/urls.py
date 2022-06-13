@@ -47,4 +47,4 @@ urlpatterns = [
             template_name='schemas/datasets.html'), 
         name='schema-datasets'),
     path('dataset/generate/', dataset_generate, name='dataset-generate')
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]
