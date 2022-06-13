@@ -24,6 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", get_random_secret_key())
 
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -39,6 +40,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'users',
+    'schemas',
+
+    'crispy_forms',
 ]
 
 MIDDLEWARE = [
@@ -56,7 +62,9 @@ ROOT_URLCONF = 'csv_generator.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            BASE_DIR.joinpath('templates'),
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -102,12 +110,22 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+# Authentication model
+AUTH_USER_MODEL = 'users.User'
+
+
+# Redirect URLs
+LOGIN_REDIRECT_URL = 'home'
+LOGIN_URL = 'login'
+LOGOUT_REDIRECT_URL = LOGIN_URL
+
+
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Kiev'
 
 USE_I18N = True
 
@@ -118,8 +136,20 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
 STATIC_URL = 'static/'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Celery configuration
+
+CELERY_TIMEZONE = 'Europe/Kiev'
+
+
+# Crispy Forms configuration
+
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
